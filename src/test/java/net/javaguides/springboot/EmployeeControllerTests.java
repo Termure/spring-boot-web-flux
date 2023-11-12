@@ -17,6 +17,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import java.util.Collection;
+import java.util.Collections;
+
 
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(controllers = EmployeeController.class) // loads only Employee Controller beans, resulting in faster tests
@@ -31,7 +34,7 @@ public class EmployeeControllerTests {
     @Test
     public void givenEmployeeObject_whenSaveEmployee_thenReturnSavedEmployee(){
 
-        // given - recondition or setup
+        // given - precondition or setup
         EmployeeDto employeeDto = new EmployeeDto();
         employeeDto.setFirstName("Ioan");
         employeeDto.setLastName("Dorel");
@@ -53,6 +56,30 @@ public class EmployeeControllerTests {
                 .consumeWith(System.out::println)
                 .jsonPath("$.firstName").isEqualTo(employeeDto.getFirstName())
                 .jsonPath("$.lastName").isEqualTo(employeeDto.getLastName())
+                .jsonPath("$.email").isEqualTo(employeeDto.getEmail());
+    }
+
+    @Test
+    public void givenEmployeeId_whenGetById_thenReturnTheEmployee(){
+        // given - precondition or setup
+        EmployeeDto employeeDto = new EmployeeDto();
+        employeeDto.setId("FAFSA");
+        employeeDto.setFirstName("fsfs");
+        employeeDto.setLastName("adidas");
+        employeeDto.setEmail("fdsafs@dfsaf.com");
+
+        given(employeeService.getEmployee(employeeDto.getId()))
+                .willReturn(just(employeeDto));
+
+        // when - action or behavior
+        WebTestClient.ResponseSpec response = webTestClient.get()
+                .uri("/api/employees/{id}", Collections.singletonMap("id", employeeDto.getId()))
+                .exchange();
+
+        // the - verify the output
+        response.expectStatus().isOk()
+                .expectBody()
+                .consumeWith(System.out::println)
                 .jsonPath("$.email").isEqualTo(employeeDto.getEmail());
     }
 }
