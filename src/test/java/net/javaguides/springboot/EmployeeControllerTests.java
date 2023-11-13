@@ -20,6 +20,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.print.attribute.standard.MediaSize;
+import java.text.CollationElementIterator;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -139,5 +140,22 @@ public class EmployeeControllerTests {
                 .expectBody()
                 .consumeWith(System.out::println)
                 .jsonPath("$.email").isEqualTo(employeeDto.getEmail());
+    }
+
+    @Test
+    public void givenEmployeeId_whenDeleteEmployee_thenReturnNothing(){
+        String employeeId = "234";
+        Mono<Void> voidMono = Mono.empty();
+
+        given(employeeService.deleteEmployee(employeeId)).willReturn(voidMono);
+
+        WebTestClient.ResponseSpec response = webTestClient
+                .delete()
+                .uri("/api/employees/{id}", Collections.singletonMap("id", employeeId))
+                .exchange();
+
+        response.expectStatus().isNoContent()
+                .expectBody()
+                .consumeWith(System.out::println);
     }
 }
