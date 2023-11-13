@@ -16,9 +16,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import reactor.core.publisher.Flux;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 
 @ExtendWith(SpringExtension.class)
@@ -81,5 +84,33 @@ public class EmployeeControllerTests {
                 .expectBody()
                 .consumeWith(System.out::println)
                 .jsonPath("$.email").isEqualTo(employeeDto.getEmail());
+    }
+
+    @Test
+    public void givenEmployees_whenGetAll_thenReturnTheList(){
+         List<EmployeeDto> list = new ArrayList<>();
+         EmployeeDto employeeDto = new EmployeeDto();
+         employeeDto.setLastName("dfasf");
+         employeeDto.setLastName("dfasf");
+         employeeDto.setEmail("dfasf");
+         list.add(employeeDto);
+
+         EmployeeDto employeeDto1 = new EmployeeDto();
+         employeeDto1.setLastName("dfasf");
+         employeeDto1.setLastName("dfasf");
+         employeeDto1.setEmail("dfasf");
+         list.add(employeeDto1);
+
+         Flux<EmployeeDto> employeeFlux = Flux.fromIterable(list);
+
+         given(employeeService.getAllEmployees()).willReturn(employeeFlux);
+
+         WebTestClient.ResponseSpec response = webTestClient.get().uri("/api/employees")
+                 .accept(MediaType.APPLICATION_JSON)
+                 .exchange();
+
+         response.expectStatus().isOk()
+                 .expectBodyList(EmployeeDto.class)
+                 .consumeWith(System.out::println);
     }
 }
