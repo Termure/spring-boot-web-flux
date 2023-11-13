@@ -17,7 +17,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
+import javax.print.attribute.standard.MediaSize;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -112,5 +114,30 @@ public class EmployeeControllerTests {
          response.expectStatus().isOk()
                  .expectBodyList(EmployeeDto.class)
                  .consumeWith(System.out::println);
+    }
+
+    @Test
+    public void givenUpdatedEmployee_whenUpdateEmployee_thenReturnTheEmployee(){
+        String employeeId = "2234";
+
+        EmployeeDto employeeDto = new EmployeeDto();
+        employeeDto.setLastName("dfasf");
+        employeeDto.setLastName("dfasf");
+        employeeDto.setEmail("dfasf");
+
+        given(employeeService.updateEmployee(ArgumentMatchers.any(EmployeeDto.class),
+                ArgumentMatchers.any(String.class)))
+                .willReturn(just(employeeDto));
+
+        WebTestClient.ResponseSpec response = webTestClient.put().uri("/api/employees/{id}", Collections.singletonMap("id", employeeId))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .body(just(employeeDto), EmployeeDto.class)
+                .exchange();
+
+        response.expectStatus().isOk()
+                .expectBody()
+                .consumeWith(System.out::println)
+                .jsonPath("$.email").isEqualTo(employeeDto.getEmail());
     }
 }
