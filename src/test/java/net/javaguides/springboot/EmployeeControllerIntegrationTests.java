@@ -54,4 +54,26 @@ public class EmployeeControllerIntegrationTests {
                 .consumeWith(System.out::println)
                 .jsonPath("$.email").isEqualTo(savedEmployee.getEmail());
     }
+
+    @Test
+    public void givenEmployeeList_whenGetAllEmployees_thenReturnTheList(){
+        EmployeeDto employeeDto = new EmployeeDto();
+        employeeDto.setFirstName("sfasf");
+        employeeDto.setLastName("sfasf");
+        employeeDto.setEmail("sfasf");
+        employeeService.saveEmployee(employeeDto).block();
+
+        EmployeeDto employeeDto1 = new EmployeeDto();
+        employeeDto1.setFirstName("sfasf");
+        employeeDto1.setLastName("sfasf");
+        employeeDto1.setEmail("sfasf");
+        employeeService.saveEmployee(employeeDto1).block();
+
+        webTestClient.get().uri("/api/employees")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBodyList(EmployeeDto.class)
+                .consumeWith(System.out::println);
+    }
 }
