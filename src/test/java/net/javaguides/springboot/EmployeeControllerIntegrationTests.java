@@ -87,4 +87,29 @@ public class EmployeeControllerIntegrationTests {
                 .expectBodyList(EmployeeDto.class)
                 .consumeWith(System.out::println);
     }
+
+    @Test
+    public void testUpdateEmployee(){
+        EmployeeDto employeeDto = new EmployeeDto();
+        employeeDto.setFirstName("sfasf");
+        employeeDto.setLastName("sfasf");
+        employeeDto.setEmail("sfasf");
+        EmployeeDto savedEmployee = employeeService.saveEmployee(employeeDto).block();
+
+        EmployeeDto updatedEmployee = new EmployeeDto();
+        updatedEmployee.setFirstName("sfasf");
+        updatedEmployee.setLastName("sfasf");
+        updatedEmployee.setEmail("sfasf");
+
+        webTestClient.put().uri("/api/employees/{id}", Collections.singletonMap("id", savedEmployee.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .body(Mono.just(updatedEmployee), EmployeeDto.class)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .consumeWith(System.out::println)
+                .jsonPath("$.email").isEqualTo(updatedEmployee.getEmail());
+
+    }
 }
