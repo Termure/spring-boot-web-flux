@@ -9,6 +9,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
+import java.util.Collection;
+import java.util.Collections;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class EmployeeControllerIntegrationTests {
 
@@ -33,5 +36,22 @@ public class EmployeeControllerIntegrationTests {
                 .expectBody()
                 .consumeWith(System.out::println)
                 .jsonPath("$.email").isEqualTo(employeeDto.getEmail());
+    }
+
+    @Test
+    public void givenEmployeeId_whenFindById_thenReturnTheEmployee(){
+        EmployeeDto employeeDto = new EmployeeDto();
+        employeeDto.setFirstName("sfasf");
+        employeeDto.setLastName("sfasf");
+        employeeDto.setEmail("sfasf");
+
+        EmployeeDto savedEmployee = employeeService.saveEmployee(employeeDto).block();
+
+        webTestClient.get().uri("/api/employees/{id}", Collections.singletonMap("id", savedEmployee.getId()))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .consumeWith(System.out::println)
+                .jsonPath("$.email").isEqualTo(savedEmployee.getEmail());
     }
 }
